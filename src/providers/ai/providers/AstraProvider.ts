@@ -3,10 +3,11 @@ import { AIProvider, AIRequestOptions, AIResponse, AIStreamEvent, Message, AIErr
 export class AstraProvider implements AIProvider {
   name = "Astra";
   private apiKey: string;
-  private defaultModel = "gpt-6-astra";
+  private defaultModel: string;
 
   constructor() {
     this.apiKey = process.env.ASTRA_API_KEY || "";
+    this.defaultModel = process.env.PRIMARY_AI_MODEL || "openai/gpt-6-astra";
   }
 
   isConfigured(): boolean {
@@ -15,8 +16,10 @@ export class AstraProvider implements AIProvider {
 
   private mapError(status: number): AIErrorType {
     if (status === 401 || status === 403) return "AUTHENTICATION";
+    if (status === 402) return "CREDITS_EXHAUSTED";
     if (status === 429) return "RATE_LIMIT";
-    if (status === 400 || status === 404) return "INVALID_REQUEST";
+    if (status === 400) return "INVALID_REQUEST";
+    if (status === 404) return "CONFIGURATION_ERROR";
     if (status >= 500) return "SERVER";
     return "UNKNOWN";
   }
@@ -28,11 +31,13 @@ export class AstraProvider implements AIProvider {
       throw err;
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${this.apiKey}`
+        "Authorization": `Bearer ${this.apiKey}`,
+        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        "X-Title": "SHRAVA"
       },
       body: JSON.stringify({
         model: options?.model || this.defaultModel,
@@ -62,11 +67,13 @@ export class AstraProvider implements AIProvider {
       return;
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${this.apiKey}`
+        "Authorization": `Bearer ${this.apiKey}`,
+        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        "X-Title": "SHRAVA"
       },
       body: JSON.stringify({
         model: options?.model || this.defaultModel,
@@ -78,6 +85,7 @@ export class AstraProvider implements AIProvider {
     });
 
     if (!response.ok) {
+      console.error(`AstraProvider stream HTTP Error: ${response.status} ${response.statusText}`);
       yield { type: "error", error: this.mapError(response.status), provider: this.name };
       return;
     }
