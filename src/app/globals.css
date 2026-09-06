@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+:root {
+  --background: #030508;
+  --foreground: #e2e8f0;
+  --accent-cyan: #06b6d4;
+  --accent-cyan-glow: rgba(6, 182, 212, 0.15);
+  --border-light: rgba(255, 255, 255, 0.08);
+  --panel-bg: rgba(10, 15, 25, 0.6);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-shrava-cyan: var(--accent-cyan);
+  --color-shrava-border: var(--border-light);
+  --color-shrava-panel: var(--panel-bg);
+  --font-sans: var(--font-geist-sans), Inter, sans-serif;
+  --font-mono: var(--font-geist-mono), "JetBrains Mono", monospace;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes core-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+@keyframes orbit-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0; }
+  50% { opacity: 0.3; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+.animate-breathe {
+  animation: core-breathe 4s ease-in-out infinite;
+}
+
+.animate-orbit-slow {
+  animation: orbit-spin 20s linear infinite;
+}
+
+.animate-orbit-medium {
+  animation: orbit-spin 12s linear infinite reverse;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
